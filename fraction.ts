@@ -4,7 +4,11 @@ export class Fraction {
   constructor(
     private numerator: number,
     private denominator: number,
-  ) {}
+  ) {
+    if (denominator === 0) {
+      throw new Error("denominator must not be zero");
+    }
+  }
 
   public add(other: Fraction) {
     const newNumerator =
@@ -53,6 +57,9 @@ export class Fraction {
     const denominator = Number.parseFloat(parts[1].trim());
     if (Number.isNaN(numerator) || Number.isNaN(denominator)) {
       throw new Error(`non-numeric numerator/denominator`);
+    }
+    if (denominator === 0) {
+      throw new Error("denominator must not be zero");
     }
     return new Fraction(numerator, denominator);
   }
