@@ -1,4 +1,5 @@
 import { roundTo } from "./utils.ts";
+import { gcdEuclid } from "./gcd.ts";
 
 export class Fraction {
   constructor(
@@ -8,6 +9,7 @@ export class Fraction {
     if (denominator === 0) {
       throw new Error("denominator must not be zero");
     }
+    this.reduce();
   }
 
   public add(other: Fraction) {
@@ -16,6 +18,7 @@ export class Fraction {
     const newDenominator = this.denominator * other.denominator;
     this.numerator = newNumerator;
     this.denominator = newDenominator;
+    this.reduce();
   }
 
   public subtract(other: Fraction) {
@@ -24,6 +27,7 @@ export class Fraction {
     const newDenominator = this.denominator * other.denominator;
     this.numerator = newNumerator;
     this.denominator = newDenominator;
+    this.reduce();
   }
 
   public multiply(other: Fraction) {
@@ -31,6 +35,7 @@ export class Fraction {
     const newDenominator = this.denominator * other.denominator;
     this.numerator = newNumerator;
     this.denominator = newDenominator;
+    this.reduce();
   }
 
   public divide(other: Fraction) {
@@ -38,6 +43,22 @@ export class Fraction {
     const newDenominator = this.denominator * other.numerator;
     this.numerator = newNumerator;
     this.denominator = newDenominator;
+    this.reduce();
+  }
+
+  public cancel(): Fraction {
+    const gcd = gcdEuclid(this.numerator, this.denominator);
+    return new Fraction(this.numerator / gcd, this.denominator / gcd);
+  }
+
+  private reduce() {
+    const gcd = gcdEuclid(this.numerator, this.denominator);
+    this.numerator /= gcd;
+    this.denominator /= gcd;
+    if (this.denominator < 0) {
+      this.numerator = -this.numerator;
+      this.denominator = -this.denominator;
+    }
   }
 
   public toFloat(precision: number): number {

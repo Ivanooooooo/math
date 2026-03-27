@@ -48,13 +48,18 @@ Deno.test("fraction subtract, multiply, divide, toString", () => {
   f1.divide(new Fraction(1, 4));
   assertAlmostEquals(f1.toFloat(0.001), 2); // 1/2 / 1/4 = 2
 
-  assertEquals(f1.toString(), "48/24");
+  assertEquals(f1.toString(), "2/1");
 });
 
 Deno.test("Fraction.parse accepts trimmed expression", () => {
   const parsed = Fraction.parse("  7 / 8  ");
   assertEquals(parsed.toString(), "7/8");
   assertAlmostEquals(parsed.toFloat(0.001), 0.875);
+});
+
+Deno.test("Fraction.parse reduces fraction", () => {
+  const parsed = Fraction.parse("2 / 4");
+  assertEquals(parsed.toString(), "1/2");
 });
 
 Deno.test("Fraction constructor rejects denominator zero", () => {
@@ -102,16 +107,67 @@ Deno.test("Fraction operations with negative values and zero", () => {
   const f2 = new Fraction(1, -3);
 
   f1.add(f2);
-  assertAlmostEquals(f1.toFloat(0.001), -0.333, 0.001);
-
-  f1.subtract(new Fraction(-1, 2));
   assertAlmostEquals(f1.toFloat(0.001), -0.833, 0.001);
 
+  f1.subtract(new Fraction(-1, 2));
+  assertAlmostEquals(f1.toFloat(0.001), -0.333, 0.001);
+
   f1.multiply(new Fraction(0, 1));
-  assertEquals(f1.toString(), "0/6");
+  assertEquals(f1.toString(), "0/1");
 
   f1.divide(new Fraction(1, 1));
-  assertEquals(f1.toString(), "0/6");
+  assertEquals(f1.toString(), "0/1");
+});
+
+Deno.test("Fraction cancel 1/1", () => {
+  const f = new Fraction(1, 1);
+  const canceled = f.cancel();
+  assertEquals(canceled.toString(), "1/1");
+});
+
+Deno.test("Fraction cancel 4/6 to 2/3", () => {
+  const f = new Fraction(4, 6);
+  const canceled = f.cancel();
+  assertEquals(canceled.toString(), "2/3");
+});
+
+Deno.test("Fraction cancel 10/15 to 2/3", () => {
+  const f = new Fraction(10, 15);
+  const canceled = f.cancel();
+  assertEquals(canceled.toString(), "2/3");
+});
+
+Deno.test("Fraction constructor reduces 2/4 to 1/2", () => {
+  const f = new Fraction(2, 4);
+  assertEquals(f.toString(), "1/2");
+});
+
+Deno.test("Fraction add reduces result", () => {
+  const f1 = new Fraction(1, 4);
+  const f2 = new Fraction(1, 4);
+  f1.add(f2);
+  assertEquals(f1.toString(), "1/2");
+});
+
+Deno.test("Fraction subtract reduces result", () => {
+  const f1 = new Fraction(3, 4);
+  const f2 = new Fraction(1, 4);
+  f1.subtract(f2);
+  assertEquals(f1.toString(), "1/2");
+});
+
+Deno.test("Fraction multiply reduces result", () => {
+  const f1 = new Fraction(2, 3);
+  const f2 = new Fraction(3, 4);
+  f1.multiply(f2);
+  assertEquals(f1.toString(), "1/2");
+});
+
+Deno.test("Fraction divide reduces result", () => {
+  const f1 = new Fraction(1, 2);
+  const f2 = new Fraction(1, 4);
+  f1.divide(f2);
+  assertEquals(f1.toString(), "2/1");
 });
 
 
